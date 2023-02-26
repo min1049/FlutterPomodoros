@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:toonflix2/screens/setting_screen.dart';
+
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const tewentyFiveMinutes = 10;
-  int totalSeconds = tewentyFiveMinutes;
+  static late String returnData;
+  late int inputSeconds;
+  late int totalSeconds;
   late Timer timer;
   bool isRunning = false;
   bool isComplete = false;
@@ -22,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
         totalPomodoros = totalPomodoros + 1;
         isRunning = false;
         isComplete = true;
-        totalSeconds = tewentyFiveMinutes;
+        totalSeconds = inputSeconds;
       });
       timer.cancel();
     } else {
@@ -56,13 +61,32 @@ class _HomeScreenState extends State<HomeScreen> {
   void onRefreshPressed() {
     setState(() {
       isComplete = true;
-      totalSeconds = tewentyFiveMinutes;
+      totalSeconds = inputSeconds;
+    });
+  }
+
+  void goToSettingPressed() async {
+    returnData = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingScreen()),
+    );
+    setState(() {
+      inputSeconds = int.parse(returnData) * 60;
+      totalSeconds = inputSeconds;
     });
   }
 
   String format(int seconds) {
     var duration = Duration(seconds: seconds);
     return duration.toString().split(".").first.substring(2, 7);
+  }
+
+  @override
+  void initState() {
+    returnData = '1500';
+    inputSeconds = 1500;
+    totalSeconds = inputSeconds;
+    super.initState();
   }
 
   @override
@@ -73,15 +97,58 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Flexible(
             flex: 1,
-            child: Container(
-              alignment: Alignment.bottomCenter,
-              child: Text(
-                format(totalSeconds),
-                style: TextStyle(
-                  color: Theme.of(context).cardColor,
-                  fontSize: 89,
-                  fontWeight: FontWeight.w600,
-                ),
+            child: Transform.translate(
+              offset: const Offset(0, 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        onPressed: goToSettingPressed,
+                      ),
+                    ],
+                  ),
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    child: Text(
+                      format(totalSeconds),
+                      style: TextStyle(
+                        color: Theme.of(context).cardColor,
+                        fontSize: 89,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  /*
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        returnData,
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        '$inputSeconds',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        '$totalSeconds',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      
+                    ],
+                  ),
+                  */
+                ],
               ),
             ),
           ),
@@ -164,16 +231,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .headlineLarge!
                                     .color),
                           ),
-                          Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                    iconSize: 30,
-                                    onPressed: onResetPressed,
-                                    icon: const Icon(Icons.restart_alt_rounded))
-                              ],
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                  iconSize: 30,
+                                  onPressed: onResetPressed,
+                                  icon: const Icon(Icons.restart_alt_rounded))
+                            ],
                           )
                         ],
                       ),
